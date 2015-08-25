@@ -25,6 +25,16 @@ import akka.cluster.MemberStatus;
 
 public class ClusterSingletonManagerTest {
 
+  private static Props createWorkerCoordinatorProps(final ActorSystem system, final Props loggerProps,
+      final boolean logPostTaskSynchronously) {
+
+    ClusterSingletonManagerSettings settings = ClusterSingletonManagerSettings.create(system).withRole("backend");
+
+    return ClusterSingletonManager.props(Props.create(WorkerCoordinator.class, loggerProps, logPostTaskSynchronously),
+        PoisonPill.getInstance(), settings);
+  }
+
+
   public void demo() {
     final ActorSystem system = null;
     final ActorRef queue = null;
@@ -41,7 +51,7 @@ public class ClusterSingletonManagerTest {
     //#create-singleton-proxy
     ClusterSingletonProxySettings proxySettings =
         ClusterSingletonProxySettings.create(system).withRole("worker");
-    system.actorOf(ClusterSingletonProxy.props("/user/consumer", proxySettings), 
+    system.actorOf(ClusterSingletonProxy.props("/user/consumer", proxySettings),
         "consumerProxy");
     //#create-singleton-proxy
   }
